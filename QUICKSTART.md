@@ -2,6 +2,9 @@
 
 This file gives the shortest path to verify the sample app both on your local machine and inside Docker. The Docker flow is intended to work cleanly from WSL as well.
 
+- [Local PC](#local-pc)
+- [Docker / WSL](#docker--wsl)
+
 ## Local PC
 
 ### 1. Build and test
