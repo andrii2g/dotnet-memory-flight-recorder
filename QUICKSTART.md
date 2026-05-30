@@ -10,8 +10,8 @@ This file gives the shortest path to verify the sample app both on your local ma
 ### 1. Build and test
 
 ```bash
-dotnet build DotNet.MemoryFlightRecorder.slnx
-dotnet test tests/DotNet.MemoryFlightRecorder.Tests/DotNet.MemoryFlightRecorder.Tests.csproj
+dotnet build A2G.MemoryFlightRecorder.slnx
+dotnet test tests/A2G.MemoryFlightRecorder.Tests/A2G.MemoryFlightRecorder.Tests.csproj
 ```
 
 ### 2. Run the sample

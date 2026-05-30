@@ -1,4 +1,4 @@
-using DotNet.MemoryFlightRecorder.DependencyInjection;
+using A2G.MemoryFlightRecorder.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 var sampleOptions = builder.Configuration.GetSection(SampleOptions.SectionName).Get<SampleOptions>() ?? new SampleOptions();

@@ -2,8 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY NuGet.Config ./
-COPY DotNet.MemoryFlightRecorder.slnx ./
-COPY src/DotNet.MemoryFlightRecorder/DotNet.MemoryFlightRecorder.csproj src/DotNet.MemoryFlightRecorder/
+COPY A2G.MemoryFlightRecorder.slnx ./
+COPY src/A2G.MemoryFlightRecorder/A2G.MemoryFlightRecorder.csproj src/A2G.MemoryFlightRecorder/
 COPY samples/LeakyApi/LeakyApi.csproj samples/LeakyApi/
 
 RUN dotnet restore samples/LeakyApi/LeakyApi.csproj --configfile NuGet.Config

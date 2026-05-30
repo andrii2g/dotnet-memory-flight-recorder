@@ -1,4 +1,4 @@
-# DotNet.MemoryFlightRecorder
+# MemoryFlightRecorder
 
 Capture memory evidence before your .NET service dies.
 
@@ -13,7 +13,7 @@ NuGet packaging is prepared, but publishing is not wired yet. For now, add a pro
 ## Basic Usage
 
 ```csharp
-using DotNet.MemoryFlightRecorder.DependencyInjection;
+using A2G.MemoryFlightRecorder.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
