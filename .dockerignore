@@ -1,0 +1,7 @@
+.git
+.vs
+.dotnet-home
+.nuget-packages
+artifacts
+**/bin
+**/obj

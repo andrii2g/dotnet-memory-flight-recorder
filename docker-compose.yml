@@ -1,0 +1,20 @@
+services:
+  leaky-api:
+    build:
+      context: .
+      dockerfile: samples/LeakyApi/Dockerfile
+    container_name: dotnet-memory-flight-recorder-leaky-api
+    ports:
+      - "5000:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      MemoryFlightRecorderSample__Urls: http://0.0.0.0:5000
+      MemoryFlightRecorderSample__DumpDirectory: /app/memory-dumps
+      MemoryFlightRecorderSample__MemoryLimitBytes: "536870912"
+      MemoryFlightRecorderSample__PollIntervalSeconds: "2"
+      MemoryFlightRecorderSample__WarningThreshold: "0.50"
+      MemoryFlightRecorderSample__CriticalThreshold: "0.65"
+      MemoryFlightRecorderSample__DumpCooldownSeconds: "120"
+    mem_limit: 768m
+    volumes:
+      - ./artifacts/docker-memory-dumps:/app/memory-dumps
