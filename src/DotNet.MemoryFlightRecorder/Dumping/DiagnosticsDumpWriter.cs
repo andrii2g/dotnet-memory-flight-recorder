@@ -1,8 +1,10 @@
 using DotNet.MemoryFlightRecorder.Evaluation;
 using DotNet.MemoryFlightRecorder.Monitoring;
 using DotNet.MemoryFlightRecorder.Options;
+using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace DotNet.MemoryFlightRecorder.Dumping;
 
@@ -19,21 +21,104 @@ public sealed class DiagnosticsDumpWriter : IDumpWriter
         _logger = logger;
     }
 
-    public Task<bool> TryWriteDumpAsync(
+    public async Task<bool> TryWriteDumpAsync(
         MemorySnapshot snapshot,
         MemoryPressureDecision decision,
         CancellationToken cancellationToken)
     {
-        if (!_options.Value.EnableDumpGeneration)
+        var options = _options.Value;
+
+        if (!options.EnableDumpGeneration)
         {
             _logger.LogWarning("Memory dump generation is disabled. Reason={Reason}", decision.Reason);
-            return Task.FromResult(false);
+            return false;
         }
 
-        _logger.LogInformation(
-            "Critical memory pressure detected for process {ProcessId}, but dump writing is not implemented in this phase.",
-            snapshot.ProcessId);
+        var timestamp = DateTimeOffset.UtcNow;
+        var dumpPath = DumpFileNamer.CreateDumpPath(options.DumpDirectory, Environment.ProcessId, timestamp);
+        var snapshotPath = Path.ChangeExtension(dumpPath, ".snapshot.json");
 
-        return Task.FromResult(false);
+        try
+        {
+            Directory.CreateDirectory(options.DumpDirectory);
+
+            var root = Path.GetPathRoot(Path.GetFullPath(options.DumpDirectory));
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                _logger.LogError(
+                    "Skipping memory dump because the dump directory root could not be determined. DumpDirectory={DumpDirectory}",
+                    options.DumpDirectory);
+                return false;
+            }
+
+            var drive = new DriveInfo(root);
+            if (drive.AvailableFreeSpace < options.MinFreeDiskBytesBeforeDump)
+            {
+                _logger.LogError(
+                    "Skipping memory dump because free disk space is too low. Available={Available:n0}, Required={Required:n0}",
+                    drive.AvailableFreeSpace,
+                    options.MinFreeDiskBytesBeforeDump);
+                return false;
+            }
+
+            var client = new DiagnosticsClient(Environment.ProcessId);
+
+            await client.WriteDumpAsync(
+                options.DumpType,
+                dumpPath,
+                options.LogDumpGeneration,
+                cancellationToken);
+        }
+        catch (DiagnosticsClientException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to write memory dump through .NET diagnostics. Check DOTNET_EnableDiagnostics, DOTNET_EnableDiagnostics_IPC, runtime compatibility, and dump directory permissions.");
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Failed to write memory dump to {DumpPath}", dumpPath);
+            return false;
+        }
+
+        if (options.WriteSnapshotJson)
+        {
+            try
+            {
+                var payload = new
+                {
+                    Snapshot = snapshot,
+                    Decision = decision,
+                    Options = new
+                    {
+                        options.WarningThreshold,
+                        options.CriticalThreshold,
+                        options.DumpType,
+                        options.DumpCooldown
+                    }
+                };
+
+                await File.WriteAllTextAsync(
+                    snapshotPath,
+                    JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }),
+                    cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Memory dump was written, but snapshot JSON failed. SnapshotPath={SnapshotPath}",
+                    snapshotPath);
+            }
+        }
+
+        _logger.LogCritical(
+            "Memory dump written. DumpPath={DumpPath}, SnapshotPath={SnapshotPath}, Reason={Reason}",
+            dumpPath,
+            options.WriteSnapshotJson ? snapshotPath : "disabled",
+            decision.Reason);
+
+        return true;
     }
 }
