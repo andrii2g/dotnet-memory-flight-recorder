@@ -83,7 +83,7 @@ public sealed class DefaultMemoryPressureEvaluatorTests
 
     private static DefaultMemoryPressureEvaluator CreateEvaluator(IMemoryLimitProvider memoryLimitProvider)
     {
-        var options = Options.Create(new MemoryFlightRecorderOptions());
+        var options = Microsoft.Extensions.Options.Options.Create(new MemoryFlightRecorderOptions());
         return new DefaultMemoryPressureEvaluator(options, memoryLimitProvider);
     }
 

@@ -13,7 +13,8 @@ public sealed class MemoryFlightRecorderOptionsTests
         var result = Validate(options => options.PollInterval = TimeSpan.Zero);
 
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Failures, failure => failure.Contains("PollInterval", StringComparison.Ordinal));
+        Assert.NotNull(result.Failures);
+        Assert.Contains(result.Failures!, failure => failure.Contains("PollInterval", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -26,7 +27,8 @@ public sealed class MemoryFlightRecorderOptionsTests
         });
 
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Failures, failure => failure.Contains("CriticalThreshold", StringComparison.Ordinal));
+        Assert.NotNull(result.Failures);
+        Assert.Contains(result.Failures!, failure => failure.Contains("CriticalThreshold", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -35,7 +37,8 @@ public sealed class MemoryFlightRecorderOptionsTests
         var result = Validate(options => options.DumpDirectory = " ");
 
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Failures, failure => failure.Contains("DumpDirectory", StringComparison.Ordinal));
+        Assert.NotNull(result.Failures);
+        Assert.Contains(result.Failures!, failure => failure.Contains("DumpDirectory", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -44,13 +47,16 @@ public sealed class MemoryFlightRecorderOptionsTests
         var result = Validate(options => options.MaxDumpCount = 0);
 
         Assert.False(result.Succeeded);
-        Assert.Contains(result.Failures, failure => failure.Contains("MaxDumpCount", StringComparison.Ordinal));
+        Assert.NotNull(result.Failures);
+        Assert.Contains(result.Failures!, failure => failure.Contains("MaxDumpCount", StringComparison.Ordinal));
     }
 
     [Fact]
     public void ValidDefaultOptionsPassValidation()
     {
-        var result = new MemoryFlightRecorderOptionsValidator().Validate(Options.DefaultName, new MemoryFlightRecorderOptions());
+        var result = new MemoryFlightRecorderOptionsValidator().Validate(
+            Microsoft.Extensions.Options.Options.DefaultName,
+            new MemoryFlightRecorderOptions());
 
         Assert.True(result.Succeeded);
     }
@@ -89,6 +95,8 @@ public sealed class MemoryFlightRecorderOptionsTests
     {
         var options = new MemoryFlightRecorderOptions();
         configure(options);
-        return new MemoryFlightRecorderOptionsValidator().Validate(Options.DefaultName, options);
+        return new MemoryFlightRecorderOptionsValidator().Validate(
+            Microsoft.Extensions.Options.Options.DefaultName,
+            options);
     }
 }
