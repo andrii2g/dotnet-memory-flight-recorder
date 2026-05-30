@@ -17,8 +17,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000
-ENV LEAKYAPI_URLS=http://0.0.0.0:5000
-ENV LEAKYAPI_DUMP_DIRECTORY=/app/memory-dumps
+ENV MemoryFlightRecorderSample__Urls=http://0.0.0.0:5000
+ENV MemoryFlightRecorderSample__DumpDirectory=/app/memory-dumps
 
 COPY --from=build /app/publish ./
 

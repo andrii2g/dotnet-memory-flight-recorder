@@ -1,16 +1,18 @@
 using DotNet.MemoryFlightRecorder.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://127.0.0.1:5000");
+var sampleOptions = builder.Configuration.GetSection(SampleOptions.SectionName).Get<SampleOptions>() ?? new SampleOptions();
+
+builder.WebHost.UseUrls(sampleOptions.Urls);
 
 builder.Services.AddMemoryFlightRecorder(options =>
 {
-    options.PollInterval = TimeSpan.FromSeconds(2);
-    options.WarningThreshold = 0.50;
-    options.CriticalThreshold = 0.65;
-    options.DumpDirectory = Path.Combine(AppContext.BaseDirectory, "memory-dumps");
-    options.DumpCooldown = TimeSpan.FromMinutes(2);
-    options.MemoryLimitBytes = 512L * 1024 * 1024;
+    options.PollInterval = TimeSpan.FromSeconds(sampleOptions.PollIntervalSeconds);
+    options.WarningThreshold = sampleOptions.WarningThreshold;
+    options.CriticalThreshold = sampleOptions.CriticalThreshold;
+    options.DumpDirectory = sampleOptions.DumpDirectory;
+    options.DumpCooldown = TimeSpan.FromSeconds(sampleOptions.DumpCooldownSeconds);
+    options.MemoryLimitBytes = sampleOptions.MemoryLimitBytes;
 });
 builder.Services.AddSingleton<LeakStore>();
 
@@ -105,4 +107,23 @@ internal sealed class LeakStore
             _buffers.Clear();
         }
     }
+}
+
+internal sealed class SampleOptions
+{
+    public const string SectionName = "MemoryFlightRecorderSample";
+
+    public string Urls { get; set; } = "http://127.0.0.1:5000";
+
+    public string DumpDirectory { get; set; } = "memory-dumps";
+
+    public long MemoryLimitBytes { get; set; } = 512L * 1024 * 1024;
+
+    public int PollIntervalSeconds { get; set; } = 2;
+
+    public double WarningThreshold { get; set; } = 0.50;
+
+    public double CriticalThreshold { get; set; } = 0.65;
+
+    public int DumpCooldownSeconds { get; set; } = 120;
 }
