@@ -8,7 +8,17 @@ When a service approaches an out-of-memory condition, the useful evidence is oft
 
 ## Installation
 
-NuGet packaging is prepared, but publishing is not wired yet. For now, add a project reference or build the package locally.
+Package id:
+
+```text
+A2G.MemoryFlightRecorder
+```
+
+Until the package is published, reference the local project or create a local package with:
+
+```bash
+dotnet pack src/A2G.MemoryFlightRecorder/A2G.MemoryFlightRecorder.csproj -c Release
+```
 
 ## Basic Usage
 
