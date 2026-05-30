@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.dotnet-home
+/.vs/DotNet.MemoryFlightRecorder.slnx
+/samples/LeakyApi/obj
+/src/DotNet.MemoryFlightRecorder/obj
+/tests/DotNet.MemoryFlightRecorder.Tests/bin/Debug/net8.0
+/tests/DotNet.MemoryFlightRecorder.Tests/obj
